@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/valyala/fasthttp"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/valyala/fasthttp"
 )
 
 const valuesKey = "sentry"
