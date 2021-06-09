@@ -13,7 +13,7 @@ import (
 
 func main() {
 	_ = sentry.Init(sentry.ClientOptions{
-		Dsn: "http://399f4cc29d9d41568a52cc8ab02b04cc@192.168.1.228:9000/2",
+		Dsn: "",
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
 			if hint.Context != nil {
 				if req, ok := hint.Context.Value(sentry.RequestContextKey).(*http.Request); ok {
