@@ -26,12 +26,13 @@ type handler struct {
 }
 
 type Options struct {
-	// Repanic configures whether Sentry should repanic after recovery, in most cases it should be set to true,
-	// as gin.Default includes it's own Recovery middleware what handles http responses.
+	// Repanic configures whether Sentry should repanic after recovery, in cases where your application is utilizing
+	// the fiber Recovery middleware it can be set to true, as fiber does not include a recovery middleware by default
 	Repanic bool
 	// WaitForDelivery configures whether you want to block the request before moving forward with the response.
-	// Because Gin's default Recovery handler doesn't restart the application,
-	// it's safe to either skip this option or set it to false.
+	// Because Fiber's recovery middleware does restart the application, setting this to true, will block
+	// the restart of the application until sentry has sent all remaining requests or until Timeout is reached,
+	// whichever comes first.
 	WaitForDelivery bool
 	// Timeout for the event delivery requests.
 	Timeout time.Duration
@@ -39,15 +40,24 @@ type Options struct {
 
 // New returns a function that satisfies gin.HandlerFunc interface
 // It can be used with Use() methods.
-func New(options Options) fiber.Handler {
-	timeout := options.Timeout
+func New(options ...Options) fiber.Handler {
+	opts := Options{
+		Repanic:         true,
+		WaitForDelivery: true,
+		Timeout:         2 * time.Second,
+	}
+	if len(options) == 1 {
+		opts = options[0]
+	}
+
+	timeout := opts.Timeout
 	if timeout == 0 {
 		timeout = 2 * time.Second
 	}
 	return (&handler{
-		repanic:         options.Repanic,
+		repanic:         opts.Repanic,
 		timeout:         timeout,
-		waitForDelivery: options.WaitForDelivery,
+		waitForDelivery: opts.WaitForDelivery,
 	}).handle
 }
 
